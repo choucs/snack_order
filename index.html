@@ -200,6 +200,20 @@
       const count = selectedBoxes.length;
       const amount = selectedBoxes.reduce((sum, box) => sum + (box.price || 0), 0);
       document.getElementById('summaryText').textContent = `共 ${count} 天 ${amount} 元`;
+      updateSummaryFontSize();
+    }
+
+    function updateSummaryFontSize() {
+      const paper = document.getElementById('paper');
+      const box = document.getElementById('summaryBox');
+      const text = document.getElementById('summaryText');
+      if (!paper || !box || !text) return;
+
+      const scale = paper.clientWidth / CONFIG.imageWidth;
+      const baseFontSize = 48;
+      const fittedFontSize = Math.min(baseFontSize * scale, box.clientHeight * 0.9);
+      text.style.fontSize = `${fittedFontSize}px`;
+      text.style.lineHeight = '1';
     }
 
     function createCheckbox(box, selectedIds, boxes) {
@@ -255,6 +269,7 @@
     }
 
     init();
+    window.addEventListener('resize', updateSummaryFontSize);
   </script>
 
 </body>
