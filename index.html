@@ -9,14 +9,11 @@
       --checkbox-size: 32px;
       --checkbox-gap: 16px;
       --checkbox-scale: 1.2;
-      --count-left: 75.27%;
-      --count-top: 47.51%;
-      --count-width: 3.63%;
-      --count-height: 2.05%;
-      --amount-left: 80.98%;
-      --amount-top: 47.51%;
-      --amount-width: 4.44%;
-      --amount-height: 2.05%;
+      --summary-left: 80.10%;
+      --summary-top: 47.51%;
+      --summary-width: 17.80%;
+      --summary-height: 2.35%;
+      --summary-bg: #efe7b0;
       --accent: #124f9c;
     }
 
@@ -60,30 +57,24 @@
       pointer-events: none;
     }
 
-    .inline-box {
+    .summary-box {
       position: absolute;
+      left: var(--summary-left);
+      top: var(--summary-top);
+      width: var(--summary-width);
+      height: var(--summary-height);
+      transform: translate(-50%, -50%);
       z-index: 20;
       pointer-events: none;
-      overflow: visible;
+      background: var(--summary-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border-radius: 2px;
     }
 
-    .inline-count {
-      left: var(--count-left);
-      top: var(--count-top);
-      width: var(--count-width);
-      height: var(--count-height);
-      transform: translate(-50%, -50%);
-    }
-
-    .inline-amount {
-      left: var(--amount-left);
-      top: var(--amount-top);
-      width: var(--amount-width);
-      height: var(--amount-height);
-      transform: translate(-50%, -50%);
-    }
-
-    .inline-text {
+    .summary-text {
       position: absolute;
       left: 50%;
       top: 50%;
@@ -96,6 +87,7 @@
       font-variant-numeric: tabular-nums;
       -webkit-font-smoothing: antialiased;
       text-rendering: geometricPrecision;
+      letter-spacing: 0;
     }
 
     .check-layer {
@@ -152,11 +144,8 @@
     <div id="paper" class="paper-wrap">
       <img class="paper-image" src="IMG_0001.jpg" alt="點心訂購表背景">
 
-      <div id="countBox" class="inline-box inline-count">
-        <span id="countValue" class="inline-text">0</span>
-      </div>
-      <div id="amountBox" class="inline-box inline-amount">
-        <span id="amountValue" class="inline-text">0</span>
+      <div id="summaryBox" class="summary-box">
+        <span id="summaryText" class="summary-text">共 0 天 0 元</span>
       </div>
 
       <div id="checkLayer" class="check-layer"></div>
@@ -172,8 +161,10 @@
       checkboxSize: 32,
       checkboxGap: 16,
       storageKey: 'snack-order-selected-boxes',
-      summaryBaseFontPx: 28,
-      summaryMinScale: 0.5
+      summaryBaseFontPx: 36,
+      summaryMinScale: 0.45,
+      summaryHorizontalPaddingPx: 10,
+      summaryVerticalPaddingPx: 4
     };
 
     function showStatus(message) {
@@ -198,38 +189,41 @@
       localStorage.setItem(CONFIG.storageKey, JSON.stringify([...set]));
     }
 
-    function fitInlineText(boxEl, textEl) {
+    function getPaperScale() {
+      const paper = document.getElementById('paper');
+      return paper ? paper.clientWidth / CONFIG.imageWidth : 1;
+    }
+
+    function fitSummaryText() {
+      const boxEl = document.getElementById('summaryBox');
+      const textEl = document.getElementById('summaryText');
       if (!boxEl || !textEl) return;
 
-      textEl.style.fontSize = `${CONFIG.summaryBaseFontPx}px`;
+      const paperScale = getPaperScale();
+      const fontPx = CONFIG.summaryBaseFontPx * paperScale;
+      textEl.style.fontSize = `${fontPx}px`;
       textEl.style.transform = 'translate(-50%, -50%) scale(1)';
 
       const naturalWidth = textEl.offsetWidth;
       const naturalHeight = textEl.offsetHeight;
-      const boxWidth = boxEl.clientWidth;
-      const boxHeight = boxEl.clientHeight;
+      const maxWidth = Math.max(1, boxEl.clientWidth - CONFIG.summaryHorizontalPaddingPx * 2 * paperScale);
+      const maxHeight = Math.max(1, boxEl.clientHeight - CONFIG.summaryVerticalPaddingPx * 2 * paperScale);
 
-      if (!naturalWidth || !naturalHeight || !boxWidth || !boxHeight) return;
+      if (!naturalWidth || !naturalHeight) return;
 
-      const scaleX = boxWidth / naturalWidth;
-      const scaleY = boxHeight / naturalHeight;
+      const scaleX = maxWidth / naturalWidth;
+      const scaleY = maxHeight / naturalHeight;
       const scale = Math.max(CONFIG.summaryMinScale, Math.min(scaleX, scaleY, 1));
 
       textEl.style.transform = `translate(-50%, -50%) scale(${scale})`;
-    }
-
-    function fitSummaryValues() {
-      fitInlineText(document.getElementById('countBox'), document.getElementById('countValue'));
-      fitInlineText(document.getElementById('amountBox'), document.getElementById('amountValue'));
     }
 
     function updateSummary(boxes, selectedIds) {
       const selectedBoxes = boxes.filter(box => selectedIds.has(box.id) && !box.is_holiday);
       const count = selectedBoxes.length;
       const amount = selectedBoxes.reduce((sum, box) => sum + (box.price || 0), 0);
-      document.getElementById('countValue').textContent = String(count);
-      document.getElementById('amountValue').textContent = String(amount);
-      fitSummaryValues();
+      document.getElementById('summaryText').textContent = `共 ${count} 天 ${amount} 元`;
+      fitSummaryText();
     }
 
     function createCheckbox(box, selectedIds, boxes) {
@@ -281,7 +275,7 @@
         }
 
         updateSummary(boxes, selectedIds);
-        window.addEventListener('resize', fitSummaryValues);
+        window.addEventListener('resize', fitSummaryText);
         clearStatus();
       } catch (error) {
         console.error(error);
