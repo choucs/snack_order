@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>點心訂購表</title>
+  <style>
+    :root {
+      --checkbox-size: 32px;
+      --checkbox-gap: 16px;
+      --checkbox-scale: 1.2;
+      --count-left: 75.27%;
+      --count-top: 47.51%;
+      --count-width: 3.63%;
+      --count-height: 2.05%;
+      --amount-left: 80.98%;
+      --amount-top: 47.51%;
+      --amount-width: 4.44%;
+      --amount-height: 2.05%;
+      --count-font-size: 56px;
+      --amount-font-size: 44px;
+      --accent: #124f9c;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+      background: #f2f0e8;
+      color: #1f1f1f;
+    }
+
+    .page {
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .paper-wrap {
+      position: relative;
+      width: min(1488px, calc(100vw - 40px));
+      aspect-ratio: 1488 / 2048;
+      background: #fff;
+      box-shadow: 0 10px 30px rgba(0,0,0,.12);
+      overflow: hidden;
+    }
+
+    .paper-image {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      user-select: none;
+      -webkit-user-drag: none;
+      pointer-events: none;
+    }
+
+    .inline-value {
+      position: absolute;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #000;
+      font-family: "Arial Black", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      font-weight: 900;
+      line-height: 1;
+      pointer-events: none;
+      background: transparent;
+      white-space: nowrap;
+      transform: none;
+    }
+
+    .inline-count {
+      left: var(--count-left);
+      top: var(--count-top);
+      width: var(--count-width);
+      height: var(--count-height);
+      font-size: var(--count-font-size);
+      letter-spacing: -0.04em;
+    }
+
+    .inline-amount {
+      left: var(--amount-left);
+      top: var(--amount-top);
+      width: var(--amount-width);
+      height: var(--amount-height);
+      font-size: var(--amount-font-size);
+      letter-spacing: -0.08em;
+    }
+
+    .check-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+    }
+
+    .check-item {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .check-item input {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      cursor: pointer;
+      accent-color: var(--accent);
+      transform: scale(var(--checkbox-scale));
+      transform-origin: center;
+    }
+
+    .status {
+      position: fixed;
+      left: 16px;
+      bottom: 16px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: rgba(0,0,0,.72);
+      color: #fff;
+      font-size: 14px;
+      z-index: 30;
+      display: none;
+    }
+
+    .status.show { display: block; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div id="paper" class="paper-wrap">
+      <img class="paper-image" src="IMG_0001.jpg" alt="點心訂購表背景">
+
+      <div id="countValue" class="inline-value inline-count">0</div>
+      <div id="amountValue" class="inline-value inline-amount">0</div>
+
+      <div id="checkLayer" class="check-layer"></div>
+    </div>
+  </div>
+
+  <div id="status" class="status"></div>
+
+  <script>
+    const CONFIG = {
+      imageWidth: 1488,
+      imageHeight: 2048,
+      checkboxSize: 32,
+      checkboxGap: 16,
+      storageKey: 'snack-order-selected-boxes'
+    };
+
+    function showStatus(message) {
+      const el = document.getElementById('status');
+      el.textContent = message;
+      el.classList.add('show');
+    }
+
+    function clearStatus() {
+      document.getElementById('status').classList.remove('show');
+    }
+
+    function loadSavedSelections() {
+      try {
+        return new Set(JSON.parse(localStorage.getItem(CONFIG.storageKey) || '[]'));
+      } catch {
+        return new Set();
+      }
+    }
+
+    function saveSelections(set) {
+      localStorage.setItem(CONFIG.storageKey, JSON.stringify([...set]));
+    }
+
+    function updateSummary(boxes, selectedIds) {
+      const selectedBoxes = boxes.filter(box => selectedIds.has(box.id) && !box.is_holiday);
+      const count = selectedBoxes.length;
+      const amount = selectedBoxes.reduce((sum, box) => sum + (box.price || 0), 0);
+      document.getElementById('countValue').textContent = String(count);
+      document.getElementById('amountValue').textContent = String(amount);
+    }
+
+    function createCheckbox(box, selectedIds, boxes) {
+      if (box.is_holiday) return null;
+
+      const node = document.createElement('label');
+      node.className = 'check-item';
+      node.style.left = `${((box.location_at_paper.x - CONFIG.checkboxGap - CONFIG.checkboxSize) / CONFIG.imageWidth) * 100}%`;
+      node.style.top = `${((box.location_at_paper.y + (box.location_at_paper.h - CONFIG.checkboxSize) / 2) / CONFIG.imageHeight) * 100}%`;
+      node.style.width = `${(CONFIG.checkboxSize / CONFIG.imageWidth) * 100}%`;
+      node.style.height = `${(CONFIG.checkboxSize / CONFIG.imageHeight) * 100}%`;
+      node.title = `${box.date_text} ${box.item_name} ${box.price}元`;
+
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.checked = selectedIds.has(box.id);
+      input.dataset.boxId = box.id;
+      input.addEventListener('change', () => {
+        if (input.checked) {
+          selectedIds.add(box.id);
+        } else {
+          selectedIds.delete(box.id);
+        }
+        saveSelections(selectedIds);
+        updateSummary(boxes, selectedIds);
+      });
+
+      node.appendChild(input);
+      return node;
+    }
+
+    async function init() {
+      try {
+        const response = await fetch('snack_boxes.json', { cache: 'no-store' });
+        if (!response.ok) throw new Error(`JSON load failed: ${response.status}`);
+        const data = await response.json();
+        if (!data || !Array.isArray(data.boxes)) {
+          throw new Error('snack_boxes.json format is invalid');
+        }
+
+        const boxes = data.boxes.slice().sort((a, b) => a.id.localeCompare(b.id));
+        const selectedIds = loadSavedSelections();
+        const layer = document.getElementById('checkLayer');
+        layer.innerHTML = '';
+
+        for (const box of boxes) {
+          const checkbox = createCheckbox(box, selectedIds, boxes);
+          if (checkbox) layer.appendChild(checkbox);
+        }
+
+        updateSummary(boxes, selectedIds);
+        clearStatus();
+      } catch (error) {
+        console.error(error);
+        showStatus(`載入失敗：${error.message}`);
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

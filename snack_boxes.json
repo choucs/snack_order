@@ -1,0 +1,164 @@
+{
+  "boxes": [
+    {
+      "id": "box_04-06",
+      "date_text": "清明年假",
+      "location_at_paper": { "x": 123, "y": 240, "w": 215, "h": 196 },
+      "item_name": "",
+      "price": null,
+      "is_holiday": true
+    },
+    {
+      "id": "box_04-07",
+      "date_text": "4/7",
+      "location_at_paper": { "x": 390, "y": 240, "w": 216, "h": 196 },
+      "item_name": "法式三明治",
+      "price": 35,
+      "is_holiday": false
+    },
+    {
+      "id": "box_04-08",
+      "date_text": "4/8",
+      "location_at_paper": { "x": 665, "y": 240, "w": 215, "h": 196 },
+      "item_name": "波蘿麵包",
+      "price": 30,
+      "is_holiday": false
+    },
+    {
+      "id": "box_04-09",
+      "date_text": "4/9",
+      "location_at_paper": { "x": 939, "y": 240, "w": 216, "h": 196 },
+      "item_name": "蘋果丹麥麵包",
+      "price": 45,
+      "is_holiday": false
+    },
+    {
+      "id": "box_04-10",
+      "date_text": "4/10",
+      "location_at_paper": { "x": 1212, "y": 240, "w": 215, "h": 196 },
+      "item_name": "草莓麵包",
+      "price": 28,
+      "is_holiday": false
+    },
+    {
+      "id": "box_04-13",
+      "date_text": "4/13",
+      "location_at_paper": { "x": 123, "y": 436, "w": 215, "h": 146 },
+      "item_name": "肉鬆麵包",
+      "price": 35,
+      "is_holiday": false
+    },
+    {
+      "id": "box_04-14",
+      "date_text": "4/14",
+      "location_at_paper": { "x": 390, "y": 436, "w": 216, "h": 146 },
+      "item_name": "甜甜圈",
+      "price": 30,
+      "is_holiday": false
+    },
+    {
+      "id": "box_04-15",
+      "date_text": "4/15",
+      "location_at_paper": { "x": 665, "y": 436, "w": 215, "h": 146 },
+      "item_name": "蜂蜜蛋糕",
+      "price": 35,
+      "is_holiday": false
+    },
+    {
+      "id": "box_04-16",
+      "date_text": "4/16",
+      "location_at_paper": { "x": 939, "y": 436, "w": 216, "h": 146 },
+      "item_name": "奶油麵包",
+      "price": 30,
+      "is_holiday": false
+    },
+    {
+      "id": "box_04-17",
+      "date_text": "4/17",
+      "location_at_paper": { "x": 1212, "y": 436, "w": 215, "h": 146 },
+      "item_name": "蛋塔",
+      "price": 30,
+      "is_holiday": false
+    },
+    {
+      "id": "box_04-20",
+      "date_text": "4/20",
+      "location_at_paper": { "x": 123, "y": 582, "w": 215, "h": 146 },
+      "item_name": "熱狗麵包",
+      "price": 30,
+      "is_holiday": false
+    },
+    {
+      "id": "box_04-21",
+      "date_text": "4/21",
+      "location_at_paper": { "x": 390, "y": 582, "w": 216, "h": 146 },
+      "item_name": "微笑蛋糕",
+      "price": 30,
+      "is_holiday": false
+    },
+    {
+      "id": "box_04-22",
+      "date_text": "4/22",
+      "location_at_paper": { "x": 665, "y": 582, "w": 215, "h": 146 },
+      "item_name": "法式三明治",
+      "price": 35,
+      "is_holiday": false
+    },
+    {
+      "id": "box_04-23",
+      "date_text": "4/23",
+      "location_at_paper": { "x": 939, "y": 582, "w": 216, "h": 146 },
+      "item_name": "波蘿麵包",
+      "price": 30,
+      "is_holiday": false
+    },
+    {
+      "id": "box_04-24",
+      "date_text": "4/24",
+      "location_at_paper": { "x": 1212, "y": 582, "w": 215, "h": 146 },
+      "item_name": "甜甜圈",
+      "price": 30,
+      "is_holiday": false
+    },
+    {
+      "id": "box_04-27",
+      "date_text": "4/27",
+      "location_at_paper": { "x": 123, "y": 728, "w": 215, "h": 144 },
+      "item_name": "蛋塔",
+      "price": 30,
+      "is_holiday": false
+    },
+    {
+      "id": "box_04-28",
+      "date_text": "4/28",
+      "location_at_paper": { "x": 390, "y": 728, "w": 216, "h": 144 },
+      "item_name": "肉鬆麵包",
+      "price": 35,
+      "is_holiday": false
+    },
+    {
+      "id": "box_04-29",
+      "date_text": "4/29",
+      "location_at_paper": { "x": 665, "y": 728, "w": 215, "h": 144 },
+      "item_name": "丹麥小熱狗",
+      "price": 40,
+      "is_holiday": false
+    },
+    {
+      "id": "box_04-30",
+      "date_text": "4/30",
+      "location_at_paper": { "x": 939, "y": 728, "w": 216, "h": 144 },
+      "item_name": "海綿蛋糕",
+      "price": 30,
+      "is_holiday": false
+    },
+    {
+      "id": "box_05-01",
+      "date_text": "勞動節",
+      "location_at_paper": { "x": 1212, "y": 728, "w": 215, "h": 144 },
+      "item_name": "",
+      "price": null,
+      "is_holiday": true
+    }
+  ]
+}
