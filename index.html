@@ -69,7 +69,7 @@
       aspect-ratio: 1488 / 2048;
       background: #fff;
       box-shadow: 0 10px 30px rgba(0,0,0,.12);
-      overflow: hidden;
+      overflow: visible;
     }
 
     .paper-image {
@@ -94,7 +94,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
+      overflow: visible;
       border-radius: 2px;
     }
 
@@ -210,10 +210,21 @@
       if (!paper || !box || !text) return;
 
       const scale = paper.clientWidth / CONFIG.imageWidth;
-      const baseFontSize = 48;
-      const fittedFontSize = Math.min(baseFontSize * scale, box.clientHeight * 0.9);
-      text.style.fontSize = `${fittedFontSize}px`;
+      const baseFontSize = 48 * scale;
+
+      text.style.fontSize = `${baseFontSize}px`;
       text.style.lineHeight = '1';
+      text.style.transform = 'translate(-50%, -50%)';
+
+      const textWidth = text.offsetWidth;
+      const textHeight = text.offsetHeight;
+      if (!textWidth || !textHeight) return;
+
+      const scaleX = box.clientWidth / textWidth;
+      const scaleY = box.clientHeight / textHeight;
+      const finalScale = Math.min(scaleX, scaleY) * 0.95;
+
+      text.style.transform = `translate(-50%, -50%) scale(${finalScale})`;
     }
 
     function createCheckbox(box, selectedIds, boxes) {
