@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>點心訂購表</title>
   <style>
     :root {
@@ -17,8 +17,8 @@
       --amount-top: 47.51%;
       --amount-width: 4.44%;
       --amount-height: 2.05%;
-      --count-font-size: 28px;
-      --amount-font-size: 28px;
+      --count-font-size: clamp(14px, 2.2vw, 22px);
+      --amount-font-size: clamp(14px, 2.4vw, 24px);
       --accent: #124f9c;
     }
 
@@ -70,7 +70,9 @@
       pointer-events: none;
       background: transparent;
       white-space: nowrap;
-      transform: none;
+
+      /* ✅ 關鍵 */
+      overflow: hidden;
     }
 
     .inline-count {
