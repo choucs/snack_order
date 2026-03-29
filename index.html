@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>點心訂購表</title>
   <style>
     :root {
@@ -17,8 +17,6 @@
       --amount-top: 47.51%;
       --amount-width: 4.44%;
       --amount-height: 2.05%;
-      --count-font-size: 28px;
-      --amount-font-size: 28px;
       --accent: #124f9c;
     }
 
@@ -26,8 +24,9 @@
       -webkit-text-size-adjust: 100%;
       text-size-adjust: 100%;
     }
-    
+
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
@@ -69,15 +68,18 @@
       justify-content: center;
       text-align: center;
       color: #000;
-      font-family: "Arial Black", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      font-family: Arial, "Arial Black", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
       font-weight: 900;
       line-height: 1;
       pointer-events: none;
       background: transparent;
       white-space: nowrap;
-
-      /* ✅ 關鍵 */
-      overflow: hidden;
+      overflow: visible;
+      transform: translate(-50%, -50%);
+      transform-origin: center center;
+      font-size: 22px;
+      font-variant-numeric: tabular-nums;
+      -webkit-font-smoothing: antialiased;
     }
 
     .inline-count {
@@ -85,8 +87,7 @@
       top: var(--count-top);
       width: var(--count-width);
       height: var(--count-height);
-      font-size: var(--count-font-size);
-      letter-spacing: -0.04em;
+      letter-spacing: -0.03em;
     }
 
     .inline-amount {
@@ -94,8 +95,7 @@
       top: var(--amount-top);
       width: var(--amount-width);
       height: var(--amount-height);
-      font-size: var(--amount-font-size);
-      letter-spacing: -0.08em;
+      letter-spacing: -0.06em;
     }
 
     .check-layer {
@@ -135,6 +135,16 @@
     }
 
     .status.show { display: block; }
+
+    @media (max-width: 768px) {
+      .page {
+        padding: 12px;
+      }
+
+      .paper-wrap {
+        width: calc(100vw - 24px);
+      }
+    }
   </style>
 </head>
 <body>
@@ -182,12 +192,34 @@
       localStorage.setItem(CONFIG.storageKey, JSON.stringify([...set]));
     }
 
+    function fitInlineValue(el, maxFontPx = 26, minFontPx = 12) {
+      if (!el) return;
+
+      const boxWidth = el.clientWidth;
+      const boxHeight = el.clientHeight;
+      if (!boxWidth || !boxHeight) return;
+
+      let size = maxFontPx;
+      el.style.fontSize = `${size}px`;
+
+      while (size > minFontPx && (el.scrollWidth > boxWidth || el.scrollHeight > boxHeight)) {
+        size -= 1;
+        el.style.fontSize = `${size}px`;
+      }
+    }
+
+    function fitSummaryValues() {
+      fitInlineValue(document.getElementById('countValue'), 26, 12);
+      fitInlineValue(document.getElementById('amountValue'), 26, 12);
+    }
+
     function updateSummary(boxes, selectedIds) {
       const selectedBoxes = boxes.filter(box => selectedIds.has(box.id) && !box.is_holiday);
       const count = selectedBoxes.length;
       const amount = selectedBoxes.reduce((sum, box) => sum + (box.price || 0), 0);
       document.getElementById('countValue').textContent = String(count);
       document.getElementById('amountValue').textContent = String(amount);
+      fitSummaryValues();
     }
 
     function createCheckbox(box, selectedIds, boxes) {
@@ -239,6 +271,7 @@
         }
 
         updateSummary(boxes, selectedIds);
+        window.addEventListener('resize', fitSummaryValues);
         clearStatus();
       } catch (error) {
         console.error(error);
