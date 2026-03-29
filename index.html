@@ -15,6 +15,9 @@
       --summary-height: 2.35%;
       --summary-bg: #efe7b0;
       --accent: #124f9c;
+      --screen-page-padding: 20px;
+      --paper-width-px: 1488;
+      --paper-height-px: 2048;
     }
 
     html {
@@ -24,11 +27,16 @@
 
     * { box-sizing: border-box; }
 
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
-      background: #f2f0e8;
       color: #1f1f1f;
+      background: #f2f0e8;
+    }
+
+    body {
+      min-height: 100vh;
     }
 
     .top-bar {
@@ -58,18 +66,21 @@
     }
 
     .page {
-      padding: 20px;
+      padding: var(--screen-page-padding);
       display: flex;
       justify-content: center;
+      align-items: flex-start;
     }
 
     .paper-wrap {
       position: relative;
-      width: min(1488px, calc(100vw - 40px));
+      width: min(1488px, calc(100vw - (var(--screen-page-padding) * 2)));
       aspect-ratio: 1488 / 2048;
       background: #fff;
       box-shadow: 0 10px 30px rgba(0,0,0,.12);
       overflow: visible;
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
     }
 
     .paper-image {
@@ -145,11 +156,56 @@
     }
 
     .status.show { display: block; }
+
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+
+    @media print {
+      html, body {
+        width: 210mm;
+        height: 297mm;
+        margin: 0;
+        padding: 0;
+        background: #fff;
+        overflow: hidden;
+      }
+
+      body {
+        min-height: auto;
+      }
+
+      .top-bar,
+      .status {
+        display: none !important;
+      }
+
+      .page {
+        width: 210mm;
+        height: 297mm;
+        margin: 0;
+        padding: 0;
+        display: block;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .paper-wrap {
+        width: 210mm;
+        height: auto;
+        max-height: 297mm;
+        aspect-ratio: 1488 / 2048;
+        margin: 0;
+        box-shadow: none;
+        break-inside: avoid;
+        page-break-inside: avoid;
+        page-break-after: avoid;
+      }
+    }
   </style>
 </head>
 <body>
-
-  <!-- ✅ FIXED: moved here correctly -->
   <div class="top-bar">
     <button onclick="window.print()">列印</button>
     <button onclick="resetSelection()">重新選取</button>
@@ -281,7 +337,8 @@
 
     init();
     window.addEventListener('resize', updateSummaryFontSize);
+    window.addEventListener('load', updateSummaryFontSize);
+    window.addEventListener('beforeprint', updateSummaryFontSize);
   </script>
-
 </body>
 </html>
