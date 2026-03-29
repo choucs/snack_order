@@ -60,26 +60,11 @@
       pointer-events: none;
     }
 
-    .inline-value {
+    .inline-box {
       position: absolute;
       z-index: 20;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      color: #000;
-      font-family: Arial, "Arial Black", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
-      font-weight: 900;
-      line-height: 1;
       pointer-events: none;
-      background: transparent;
-      white-space: nowrap;
       overflow: visible;
-      transform: translate(-50%, -50%);
-      transform-origin: center center;
-      font-size: 22px;
-      font-variant-numeric: tabular-nums;
-      -webkit-font-smoothing: antialiased;
     }
 
     .inline-count {
@@ -87,7 +72,7 @@
       top: var(--count-top);
       width: var(--count-width);
       height: var(--count-height);
-      letter-spacing: -0.03em;
+      transform: translate(-50%, -50%);
     }
 
     .inline-amount {
@@ -95,7 +80,22 @@
       top: var(--amount-top);
       width: var(--amount-width);
       height: var(--amount-height);
-      letter-spacing: -0.06em;
+      transform: translate(-50%, -50%);
+    }
+
+    .inline-text {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      color: #000;
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 900;
+      line-height: 1;
+      white-space: nowrap;
+      transform-origin: center center;
+      font-variant-numeric: tabular-nums;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: geometricPrecision;
     }
 
     .check-layer {
@@ -152,8 +152,12 @@
     <div id="paper" class="paper-wrap">
       <img class="paper-image" src="IMG_0001.jpg" alt="點心訂購表背景">
 
-      <div id="countValue" class="inline-value inline-count">0</div>
-      <div id="amountValue" class="inline-value inline-amount">0</div>
+      <div id="countBox" class="inline-box inline-count">
+        <span id="countValue" class="inline-text">0</span>
+      </div>
+      <div id="amountBox" class="inline-box inline-amount">
+        <span id="amountValue" class="inline-text">0</span>
+      </div>
 
       <div id="checkLayer" class="check-layer"></div>
     </div>
@@ -167,7 +171,9 @@
       imageHeight: 2048,
       checkboxSize: 32,
       checkboxGap: 16,
-      storageKey: 'snack-order-selected-boxes'
+      storageKey: 'snack-order-selected-boxes',
+      summaryBaseFontPx: 28,
+      summaryMinScale: 0.5
     };
 
     function showStatus(message) {
@@ -192,25 +198,29 @@
       localStorage.setItem(CONFIG.storageKey, JSON.stringify([...set]));
     }
 
-    function fitInlineValue(el, maxFontPx = 26, minFontPx = 12) {
-      if (!el) return;
+    function fitInlineText(boxEl, textEl) {
+      if (!boxEl || !textEl) return;
 
-      const boxWidth = el.clientWidth;
-      const boxHeight = el.clientHeight;
-      if (!boxWidth || !boxHeight) return;
+      textEl.style.fontSize = `${CONFIG.summaryBaseFontPx}px`;
+      textEl.style.transform = 'translate(-50%, -50%) scale(1)';
 
-      let size = maxFontPx;
-      el.style.fontSize = `${size}px`;
+      const naturalWidth = textEl.offsetWidth;
+      const naturalHeight = textEl.offsetHeight;
+      const boxWidth = boxEl.clientWidth;
+      const boxHeight = boxEl.clientHeight;
 
-      while (size > minFontPx && (el.scrollWidth > boxWidth || el.scrollHeight > boxHeight)) {
-        size -= 1;
-        el.style.fontSize = `${size}px`;
-      }
+      if (!naturalWidth || !naturalHeight || !boxWidth || !boxHeight) return;
+
+      const scaleX = boxWidth / naturalWidth;
+      const scaleY = boxHeight / naturalHeight;
+      const scale = Math.max(CONFIG.summaryMinScale, Math.min(scaleX, scaleY, 1));
+
+      textEl.style.transform = `translate(-50%, -50%) scale(${scale})`;
     }
 
     function fitSummaryValues() {
-      fitInlineValue(document.getElementById('countValue'), 26, 12);
-      fitInlineValue(document.getElementById('amountValue'), 26, 12);
+      fitInlineText(document.getElementById('countBox'), document.getElementById('countValue'));
+      fitInlineText(document.getElementById('amountBox'), document.getElementById('amountValue'));
     }
 
     function updateSummary(boxes, selectedIds) {
