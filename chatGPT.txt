@@ -1,0 +1,120 @@
+Read the attached snack-order form image and produce ONE file directly named snack_boxes.json.
+
+STRICT OUTPUT RULE:
+Create the final answer as raw JSON only.
+Do not wrap it in markdown.
+Do not add explanation, notes, comments, or extra text.
+The entire response must be the exact file content of snack_boxes.json.
+
+FILE NAME RULE:
+The output file name is exactly:
+snack_boxes.json
+
+SCOPE RULE:
+Only process the UPPER HALF of the image.
+Ignore the lower half completely because it is a duplicate.
+
+CRITICAL COORDINATE RULE:
+Do NOT estimate each snack box by the visible text region.
+Do NOT use the text/date position as the box coordinate.
+Do NOT use approximate visual bounding boxes around the printed content.
+
+The field location_at_paper must describe the STRUCTURAL TABLE CELL.
+
+That means:
+- x is the left border line of the snack/date cell.
+- y is the top border line of the snack/date cell (NOT the weekday header row).
+- w is the distance to the next vertical border line.
+- h is the distance to the next horizontal border line.
+- Coordinates must follow the printed grid lines, not the text.
+- All boxes in the same column must share consistent x alignment.
+- All boxes in the same row must share consistent y alignment.
+- The checkbox will be placed by HTML to the LEFT OUTSIDE of each cell using x, so x must be the true left grid boundary.
+
+CRITICAL ALIGNMENT WITH HTML:
+This JSON MUST be compatible with the existing index.html positioning logic:
+
+CONFIG.imageWidth = 1488
+CONFIG.imageHeight = 2048
+
+Checkbox placement in HTML:
+left = box.x - checkboxGap - checkboxSize
+top  = box.y + (box.h - checkboxSize) / 2
+
+Therefore:
+- x must align to the real cell border used by the working layout (~118 for first column).
+- y must start at the first snack row (~294), NOT the header.
+- Do NOT include the weekday header height in y.
+- Grid must match the working reference pattern.
+
+REFERENCE GRID PATTERN (VERY IMPORTANT):
+Use this structure as alignment reference:
+
+Columns (x):
+~118, ~386, ~658, ~927, ~1196
+
+Rows (y):
+~294, ~406, ~518, ~630, ~743
+
+Cell size:
+w ≈ 210–216 (last column slightly narrower)
+h ≈ 112–113
+
+DATA MODEL:
+Output exactly this structure:
+
+{
+  "boxes": [
+    {
+      "id": "box_MM-DD",
+      "date_text": "...",
+      "location_at_paper": { "x": ?, "y": ?, "w": ?, "h": ? },
+      "item_name": "...",
+      "price": number or null,
+      "is_holiday": true or false
+    }
+  ]
+}
+
+FIELD RULES:
+
+id:
+Format must be box_MM-DD.
+Month and day must be zero-padded.
+Examples:
+4/7 -> box_04-07
+5/1 -> box_05-01
+6/3 -> box_06-03
+
+date_text:
+Preserve the exact visible date text or holiday text from the image.
+Examples:
+"5/5"
+"6/1"
+"國遊會補假"
+
+item_name:
+Extract the snack name only.
+Do not include the price.
+If the cell is a holiday/no-order cell, use "".
+
+price:
+Extract the numeric price only.
+Examples:
+"30元" -> 30
+"35元" -> 35
+If the cell is a holiday/no-order cell, use null.
+
+is_holiday:
+true only for no-order/holiday cells.
+false for normal snack-order cells.
+
+ORDER RULE:
+List boxes in row-major order:
+left to right, top to bottom, only from the upper half table.
+
+IMPORTANT:
+- The first column Monday cells are valid snack cells when they contain dates.
+- The top-left holiday cell must be included.
+- Do NOT include weekday header cells.
+- Do NOT include the lower duplicate table.
